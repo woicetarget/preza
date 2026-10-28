@@ -144,6 +144,10 @@ footer{padding:8px 0 28px;color:var(--muted);font-size:14px}
 .f-legal a{text-decoration:none;padding:6px 0}
 .copy{margin-top:12px}
 
+/* demo toast: shown on CTA taps while BOT_URL is still a placeholder */
+.toast{position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom));z-index:30;transform:translateX(-50%);max-width:calc(100% - 32px);padding:12px 18px;border-radius:14px;background:var(--ink);color:#fff;font-size:15px;font-weight:600;text-align:center;box-shadow:0 12px 30px rgba(15,27,61,.35)}
+@media (min-width:860px){.toast{bottom:32px}}
+
 /* sticky mobile bar */
 .sticky{position:fixed;left:0;right:0;bottom:0;z-index:20;padding:10px 16px calc(10px + env(safe-area-inset-bottom));background:rgba(255,255,255,.94);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-top:1px solid var(--line);transform:translateY(110%);visibility:hidden;transition:transform .25s ease,visibility .25s}
 .sticky.show{transform:none;visibility:visible}
@@ -420,6 +424,8 @@ footer{padding:8px 0 28px;color:var(--muted);font-size:14px}
   </a>
 </div>
 
+<div class="toast" id="toast" role="status" aria-live="polite" hidden>Здесь будет ссылка на Telegram-бота</div>
+
 <script>
 (function () {
   /* ===== Настройки: меняйте только этот блок ===== */
@@ -431,9 +437,9 @@ footer{padding:8px 0 28px;color:var(--muted);font-size:14px}
   };
   /* =============================================== */
 
-  if (CONFIG.BOT_URL.indexOf('YOUR_BOT') !== -1 && window.console) {
-    console.warn('Mamba landing: замените BOT_URL на ссылку вашего бота.');
-  }
+  // Пока BOT_URL не заменён, кнопки никуда не ведут и показывают подсказку (режим превью).
+  var demo = CONFIG.BOT_URL.indexOf('YOUR_BOT') !== -1;
+  if (demo && window.console) console.warn('Mamba landing: замените BOT_URL на ссылку вашего бота.');
 
   // Метка кампании (?cmp=YD1) уходит в бота параметром start, чтобы видеть источник в боте.
   var cmp = '';
@@ -443,11 +449,19 @@ footer{padding:8px 0 28px;color:var(--muted);font-size:14px}
     try { var u = new URL(CONFIG.BOT_URL); u.searchParams.set('start', cmp); href = u.toString(); } catch (e) {}
   }
 
+  var toast = document.getElementById('toast'), toastTimer;
+  function showToast() {
+    toast.hidden = false;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { toast.hidden = true; }, 2400);
+  }
+
   var ctas = document.querySelectorAll('[data-cta]');
   for (var i = 0; i < ctas.length; i++) {
-    ctas[i].setAttribute('href', href);
+    ctas[i].setAttribute('href', demo ? '#' : href);
     ctas[i].addEventListener('click', (function (el) {
-      return function () {
+      return function (ev) {
+        if (demo) { ev.preventDefault(); showToast(); return; }
         if (window.ym && CONFIG.METRIKA_ID) {
           try { window.ym(CONFIG.METRIKA_ID, 'reachGoal', 'tg_click', { place: el.getAttribute('data-cta') }); } catch (e) {}
         }
