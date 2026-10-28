@@ -1,0 +1,540 @@
+<title>Спай креативов VPN</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geologica:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: отчёт-досье. Шапка со сводкой, затем строки-карточки «картинка слева, текст и воронка справа». */
+:root {
+  --bg: #EDF0EE;
+  --surface: #FFFFFF;
+  --ink: #14191C;
+  --muted: #55606A;
+  --line: #D3D9D7;
+  --accent: #0B6B74;
+  --accent-soft: #DAEEEF;
+  --meta: #3651C2;
+  --meta-soft: #E1E7FA;
+  --note-bg: #F8EFD9;
+  --note-ink: #5E4308;
+  --shot-bg: #DDE2E0;
+  --font-display: "Geologica", "IBM Plex Sans", system-ui, sans-serif;
+  --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0E1214; --surface: #161B1E; --ink: #E7ECEA; --muted: #9AA5AC; --line: #283135;
+    --accent: #5FC6CF; --accent-soft: #12383C; --meta: #9DB0FF; --meta-soft: #1D2547;
+    --note-bg: #2C2410; --note-ink: #E6CB8C; --shot-bg: #0A0D0E;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0E1214; --surface: #161B1E; --ink: #E7ECEA; --muted: #9AA5AC; --line: #283135;
+  --accent: #5FC6CF; --accent-soft: #12383C; --meta: #9DB0FF; --meta-soft: #1D2547;
+  --note-bg: #2C2410; --note-ink: #E6CB8C; --shot-bg: #0A0D0E;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink);
+  font-family: var(--font-body); font-size: 15px; line-height: 1.55;
+  padding-block: 32px 56px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.wrap { max-width: 1040px; margin: 0 auto; display: flex; flex-direction: column; gap: 40px; }
+h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; margin: 0; line-height: 1.2; }
+h1 { font-size: clamp(28px, 5vw, 40px); font-weight: 700; letter-spacing: -0.01em; }
+h2 { font-size: clamp(21px, 3.4vw, 27px); font-weight: 600; }
+h3 { font-size: 18px; font-weight: 600; }
+p { margin: 0; }
+a { color: var(--accent); text-underline-offset: 2px; }
+a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
+.mono { font-family: var(--font-mono); font-size: 0.86em; }
+
+/* шапка */
+.head { display: flex; flex-direction: column; gap: 14px; }
+.eyebrow { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.lede { max-width: 68ch; color: var(--muted); font-size: 16px; }
+.tally { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; }
+.tally > div { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.tally b { font-family: var(--font-display); font-size: 30px; line-height: 1; font-weight: 700; font-variant-numeric: tabular-nums; }
+.tally span { color: var(--muted); font-size: 13.5px; }
+.tally .zero b { color: var(--muted); }
+
+.note { background: var(--note-bg); color: var(--note-ink); border-radius: 8px; padding: 14px 16px; font-size: 14px; display: flex; flex-direction: column; gap: 6px; }
+.note strong { font-weight: 600; }
+.note ul { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 4px; }
+
+/* блоки */
+.section { display: flex; flex-direction: column; gap: 18px; }
+.section-head { display: flex; flex-direction: column; gap: 8px; }
+.section-head p { max-width: 70ch; color: var(--muted); }
+.patterns { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 10px; }
+.patterns li { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; font-size: 14px; min-width: 0; }
+.patterns li b { font-weight: 600; }
+
+/* карточка креатива */
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; display: grid; grid-template-columns: minmax(0, 250px) minmax(0, 1fr); gap: 0; overflow: hidden; }
+.shot { background: var(--shot-bg); display: flex; align-items: center; justify-content: center; padding: 12px; min-width: 0; }
+.shot img { display: block; width: 100%; height: auto; max-height: 440px; object-fit: contain; border-radius: 4px; }
+.noshot { width: 100%; min-height: 150px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; text-align: center; color: var(--muted); font-size: 13px; border: 1px dashed var(--line); border-radius: 6px; padding: 16px 12px; }
+.noshot .btn { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.06em; border: 1px solid var(--line); border-radius: 999px; padding: 3px 10px; color: var(--ink); }
+.body { padding: 18px 20px; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.chip { font-family: var(--font-mono); font-size: 11.5px; padding: 2px 8px; border-radius: 4px; border: 1px solid var(--line); color: var(--muted); }
+.chip.tg { background: var(--accent-soft); border-color: transparent; color: var(--accent); font-weight: 500; }
+.chip.fb { background: var(--meta-soft); border-color: transparent; color: var(--meta); font-weight: 500; }
+.meta-line { color: var(--muted); font-size: 13px; font-variant-numeric: tabular-nums; }
+.facts { margin: 0; display: grid; grid-template-columns: 104px minmax(0, 1fr); gap: 10px 14px; }
+.facts dt { font-family: var(--font-mono); font-size: 11.5px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--muted); padding-top: 3px; }
+.facts dd { margin: 0; min-width: 0; font-size: 14.5px; }
+.flow { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px 4px; align-items: stretch; }
+.flow li { background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 4px 9px; font-size: 13px; line-height: 1.4; }
+.flow li:not(:last-child)::after { content: "→"; color: var(--muted); margin-left: 8px; }
+.flow li { display: inline-flex; align-items: center; }
+.why { border-top: 1px solid var(--line); padding-top: 12px; font-size: 14px; }
+.why b { font-family: var(--font-mono); font-weight: 500; font-size: 11.5px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--accent); margin-right: 6px; }
+.src { font-size: 13px; }
+.stack { display: flex; flex-direction: column; gap: 14px; }
+
+/* пустой раздел */
+.empty { background: var(--surface); border: 1px dashed var(--line); border-radius: 10px; padding: 18px 20px; display: flex; flex-direction: column; gap: 10px; }
+.empty ul { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; font-size: 14.5px; }
+
+.sources { font-size: 13px; color: var(--muted); display: flex; flex-direction: column; gap: 6px; }
+.sources ul { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 3px; }
+
+@media (max-width: 720px) {
+  .card { grid-template-columns: minmax(0, 1fr); }
+  .shot img { max-height: 360px; }
+  .facts { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+  .facts dd { margin-bottom: 8px; }
+  .body { padding: 16px; }
+}
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+</style>
+
+<div class="wrap">
+
+<header class="head">
+  <div class="eyebrow">Разведка по рекламе VPN · 28.10.2026</div>
+  <h1>Креативы VPN: Telegram Ads и Meta</h1>
+  <p class="lede">Десять объявлений из Telegram Ads по РФ и десять зарубежных из Meta Ad Library. У каждого картинка, пересказ текста и путь клика. По Яндексу и ВК публичных баз нет, поэтому там список пустой.</p>
+  <div class="tally">
+    <div><b>10</b><span>Telegram Ads, русскоязычные боты</span></div>
+    <div class="zero"><b>0</b><span>Яндекс Директ и ВК: нет открытой базы</span></div>
+    <div><b>10</b><span>Зарубежные, Meta (США)</span></div>
+  </div>
+  <div class="note">
+    <strong>Как выбирал «лучшие»</strong>
+    <ul>
+      <li>Ни Telegram, ни Meta не отдают конверсии и затраты. Критерии косвенные: сколько объявление живёт, сколько у него вариантов, насколько крупный рекламодатель, и чтобы заходы не повторялись.</li>
+      <li>Порядок внутри списков идёт по силе этих признаков, не по результату. Срок в Telegram считается от начала наблюдений архива (апрель 2026), настоящий возраст может быть больше.</li>
+      <li>Тексты даны пересказом. Дословные версии лежат в архиве по ссылке у каждой карточки. Доллары пересчитаны по курсу ЦБ 82,89 ₽ на 21.10.2026 (на 28.10 курс не нашёл).</li>
+    </ul>
+  </div>
+</header>
+
+<!-- ============ TELEGRAM ============ -->
+<section class="section" id="telegram">
+  <div class="section-head">
+    <h2>Telegram Ads: 10 объявлений по РФ</h2>
+    <p>Источник: открытый архив Telegram-рекламы telegramadsarchive.com. В нём 29,5 тыс. VPN-объявлений, из них около 17,9 тыс. с гео РФ (цифры самого архива, гео он определяет по языку и ссылке). Сам формат: до 160 знаков, кнопка «VIEW BOT», картинка по желанию.</p>
+  </div>
+
+  <ul class="patterns">
+    <li><b>Пробник в тексте у восьми из десяти.</b> От 2 до 7 дней у семи, у Alpha просто «бесплатно». Платный вход у двух: 1 ₽ (FadeVPN) и 10 ₽ (Дядя Ваня). Цена подписки в тексте у трёх (VUNO, PPL, Easy Go): от 20 до 99 ₽ в месяц.</li>
+    <li><b>Язык блокировок у девяти из десяти.</b> «Не работает», «белые списки», «когда глушат», «без блокировок». Только PPL продаёт одной ценой.</li>
+    <li><b>Своя ссылка на каждое размещение.</b> В параметре start стоят коды площадок, UUID, pid. Источники трафика считают по отдельности.</li>
+    <li><b>Конвейер вариантов.</b> У рекламодателей по 22, 29, 60, 83, 86 и 135 объявлений. Меняют цену (33 и 83 ₽ в одной связке), число стран (5 и 7), эмодзи, срочность.</li>
+    <li><b>Картинка у шести из десяти.</b> Остальные четыре работают одним текстом и кнопкой.</li>
+    <li><b>Реклама своим клиентам.</b> У Alice есть отдельные объявления про продление подписки, прокси для Telegram и роутеры с VPN.</li>
+  </ul>
+
+  <div class="note">
+    <strong>Что в воронке проверено</strong>
+    <span>Объявление, ссылка на бота с меткой и описание бота с t.me открыты. Экран после /start, тарифы и оплату внутри ботов я не открывал: для этого бота нужно запускать. Реклама VPN в РФ запрещена с 1 сентября 2025, архив показывает, что объявления при этом идут.</span>
+  </div>
+
+  <div class="stack">
+
+  <article class="card">
+    <div class="shot"><img src="img/tg-alice.jpg" alt="Баннер Alice VPN: ноутбук, телефоны с надписью ON, роутер и аниме-героиня" loading="lazy"></div>
+    <div class="body">
+      <div class="chips"><span class="chip tg">Telegram Ads</span><span class="chip">@alice_vpn_bot</span><span class="chip">кабинет EUR</span></div>
+      <h3>«VPN, который работает» и месяц за друга</h3>
+      <div class="meta-line">В эфире с 15.11.2024 · 5 объявлений в архиве</div>
+      <dl class="facts">
+        <dt>Картинка</dt><dd>Баннер 16:9, тёмно-синий неон. Ноутбук, три экрана с «ON», роутер, из ноутбука выглядывает аниме-героиня в очках. Внизу крупное обещание, в углу логотип.</dd>
+        <dt>Текст</dt><dd>Заход: «просто работает». Дальше новый протокол, устойчивый к блокировкам, и реферальный бонус: месяц подписки за каждого приглашённого друга.</dd>
+        <dt>Воронка</dt><dd><ol class="flow"><li>Объявление</li><li>Бот, метка start=TG</li><li>«Проводник в интернет без ограничений»</li><li>Подписка</li><li>Месяц за друга</li></ol></dd>
+      </dl>
+      <p class="why"><b>Почему в списке</b>Единственный креатив в выборке с историей дольше двух лет. Соседние объявления Alice работают на удержание: продление подписки, прокси для Telegram, роутеры (июнь 2026). Заход почти слово в слово повторил «Дядя Ваня VPN».</p>
+      <a class="src" href="https://telegramadsarchive.com/advertisers/tg-alice-vpn-bot" target="_blank" rel="noopener">Все тексты в архиве</a>
+    </div>
+  </article>
+
+  <article class="card">
+    <div class="shot"><img src="img/tg-portbot.jpg" alt="Белая аптечка с красным крестом и надписью VPN, заголовок «Первая помощь интернету»" loading="lazy"></div>
+    <div class="body">
+      <div class="chips"><span class="chip tg">Telegram Ads</span><span class="chip">@vpn_portbot</span><span class="chip">кабинеты TON и EUR</span></div>
+      <h3>Аптечка «Первая помощь интернету»</h3>
+      <div class="meta-line">В эфире с 30.03.2026 (212 дней) · 22 варианта</div>
+      <dl class="facts">
+        <dt>Картинка</dt><dd>Белый фон, чёрно-красный заголовок, аптечка с красным крестом и плашкой VPN. Читается за секунду, деталей нет.</dd>
+        <dt>Текст</dt><dd>Безлимит, 5 устройств, 7 стран, белые списки в один клик, поддержка 24/7. Варианты отличаются мелочами: пять восклицательных знаков в начале, «5 стран» вместо «7», «без рекламы и тормозов» вместо «быстрый и безлимитный».</dd>
+        <dt>Воронка</dt><dd><ol class="flow"><li>Объявление</li><li>Бот с уникальным UUID в ссылке</li><li>«Быстрый и анонимный VPN, логи не храним»</li><li>Пробник или покупка</li></ol></dd>
+      </dl>
+      <p class="why"><b>Почему в списке</b>212 дней при 22 вариантах. Здесь тестируют формулировки, картинка остаётся прежней. На каждое размещение выдаётся свой UUID.</p>
+      <a class="src" href="https://telegramadsarchive.com/advertisers/tg-vpn-portbot" target="_blank" rel="noopener">Все тексты в архиве</a>
+    </div>
+  </article>
+
+  <article class="card">
+    <div class="shot"><img src="img/tg-ppl.jpg" alt="Логотип PPL: четыре кольца с замком на белом фоне" loading="lazy"></div>
+    <div class="body">
+      <div class="chips"><span class="chip tg">Telegram Ads</span><span class="chip">@vpnpplbot</span><span class="chip">кабинеты TON и EUR</span></div>
+      <h3>Цена от 33 ₽ и 3 дня в подарок</h3>
+      <div class="meta-line">В эфире с 17.03.2026 (221 день) · 6 объявлений</div>
+      <dl class="facts">
+        <dt>Картинка</dt><dd>Квадратный логотип PPL, кольца с замком. Картинка почти не продаёт, продаёт оффер в тексте.</dd>
+        <dt>Текст</dt><dd>«Быстрый и безопасный VPN», от 33 ₽ в месяц, 3 устройства, «нажмите сюда и получите 3 дня в подарок». Вариант со срочностью: игральные кубики, «только 7 дней», 99 ₽ в месяц на три устройства (19.08–29.09).</dd>
+        <dt>Воронка</dt><dd><ol class="flow"><li>Объявление</li><li>Бот, в ссылке pid=138113</li><li>«Быстрый и безопасный сервис» и канал</li><li>3 дня в подарок</li><li>Тариф</li></ol></dd>
+      </dl>
+      <p class="why"><b>Почему в списке</b>Самый ранний в выборке после Alice. Единственный без языка блокировок: решает цена и срок подарка. pid в ссылке закодирован в base64, это похоже на код партнёра или размещения.</p>
+      <a class="src" href="https://telegramadsarchive.com/advertisers/tg-vpnpplbot" target="_blank" rel="noopener">Все тексты в архиве</a>
+    </div>
+  </article>
+
+  <article class="card">
+    <div class="shot"><div class="noshot"><span>Картинки нет</span><span class="btn">VIEW BOT</span><span>только текст и кнопка</span></div></div>
+    <div class="body">
+      <div class="chips"><span class="chip tg">Telegram Ads</span><span class="chip">@easygorobot</span><span class="chip">кабинет EUR</span></div>
+      <h3>«Работает» и 7 дней бесплатно, цена в тесте</h3>
+      <div class="meta-line">В эфире с апреля 2026 (до 191 дня) · 29 объявлений</div>
+      <dl class="facts">
+        <dt>Картинка</dt><dd>Нет. Объявление открывается эмодзи 😱 и держится на тексте.</dd>
+        <dt>Текст</dt><dd>VPN на протоколе, устойчивом к блокировкам, от 33 ₽ в месяц, семь дней бесплатно, «быстрая настройка в боте 👇». В соседней копии той же даты стоит 83 ₽: идёт тест цены. Ещё одна ветка про «работают все сайты, российские и иностранные, без отключения VPN».</dd>
+        <dt>Воронка</dt><dd><ol class="flow"><li>Объявление</li><li>Бот с меткой площадки: ded_vpn_mir22, velvet_vpn_mir2, ab3_gigachat_bot_test</li><li>7 дней бесплатно</li><li>Оплата</li></ol></dd>
+      </dl>
+      <p class="why"><b>Почему в списке</b>Самый длинный пробник среди десяти. Метки в ссылках похожи на названия каналов и ботов-площадок: под каждое размещение своя ссылка.</p>
+      <a class="src" href="https://telegramadsarchive.com/advertisers/tg-easygorobot" target="_blank" rel="noopener">Все тексты в архиве</a>
+    </div>
+  </article>
+
+  <article class="card">
+    <div class="shot"><div class="noshot"><span>Картинки нет</span><span class="btn">VIEW BOT</span><span>только текст и кнопка</span></div></div>
+    <div class="body">
+      <div class="chips"><span class="chip tg">Telegram Ads</span><span class="chip">@vuno_vpn_bot</span><span class="chip">кабинет TON</span></div>
+      <h3>20 ₽ за устройство и «подключайтесь сейчас»</h3>
+      <div class="meta-line">В эфире с апреля 2026 (до 190 дней) · 60 объявлений</div>
+      <dl class="facts">
+        <dt>Картинка</dt><dd>Нет.</dd>
+        <dt>Текст</dt><dd>Два тона. Цена: от 20 ₽ в месяц за устройство, до 5 устройств, безлимитный трафик, 5 дней в подарок. Нативный: «рекомендуем быстрое и безопасное соединение», «всё больше сайтов работают нестабильно, подключайтесь уже сейчас».</dd>
+        <dt>Воронка</dt><dd><ol class="flow"><li>Объявление</li><li>Бот, метки rbc, auto, stats</li><li>«Безлимитный обход глушилок, YouTube без рекламы, 5 дней бесплатно»</li><li>Оплата</li></ol></dd>
+      </dl>
+      <p class="why"><b>Почему в списке</b>60 объявлений на одном тексте и кнопке. Цену подают за устройство (20 ₽), это делает вход заметно дешевле, чем «от 99 ₽» за подписку.</p>
+      <a class="src" href="https://telegramadsarchive.com/advertisers/tg-vuno-vpn-bot" target="_blank" rel="noopener">Все тексты в архиве</a>
+    </div>
+  </article>
+
+  <article class="card">
+    <div class="shot"><div class="noshot"><span>Картинки нет</span><span class="btn">VIEW BOT</span><span>только текст и кнопка</span></div></div>
+    <div class="body">
+      <div class="chips"><span class="chip tg">Telegram Ads</span><span class="chip">@vpn_groza_bot</span><span class="chip">кабинет TON</span></div>
+      <h3>«Новый VPN» и белый список для мобильного интернета</h3>
+      <div class="meta-line">В эфире до 166 дней · 135 объявлений, больше всех в десятке</div>
+      <dl class="facts">
+        <dt>Картинка</dt><dd>Нет. Много эмодзи (молния, огонь, антенна, ракета) и слово «НОВЫЙ» заглавными.</dd>
+        <dt>Текст</dt><dd>Каждый вариант подан как новость: «новый VPN уже доступен», «новые протоколы + белый список». Повторяются: Wi-Fi и LTE, iPhone, Android и ПК, 2 дня бесплатно, «проверь и убедись сам».</dd>
+        <dt>Воронка</dt><dd><ol class="flow"><li>Объявление</li><li>Бот, метки global_150 и global_183</li><li>«Установка занимает около 2 минут»</li><li>2 дня бесплатно</li></ol></dd>
+      </dl>
+      <p class="why"><b>Почему в списке</b>Конвейер тестов: 135 вариантов с перестановками эмодзи, слов «новый» и порядка преимуществ.</p>
+      <a class="src" href="https://telegramadsarchive.com/advertisers/tg-vpn-groza-bot" target="_blank" rel="noopener">Все тексты в архиве</a>
+    </div>
+  </article>
+
+  <article class="card">
+    <div class="shot"><img src="img/tg-fade.jpg" alt="Два телефона на синем фоне: экран «Разблокируйте интернет» с кнопкой «Попробовать за 1 ₽» и профиль бота FadeVPN" loading="lazy"></div>
+    <div class="body">
+      <div class="chips"><span class="chip tg">Telegram Ads</span><span class="chip">@fadevpnbot</span><span class="chip">кабинет EUR</span></div>
+      <h3>3 дня за 1 ₽ и скриншот бота в самом креативе</h3>
+      <div class="meta-line">В эфире с апреля 2026 (до 188 дней) · 12 объявлений</div>
+      <dl class="facts">
+        <dt>Картинка</dt><dd>Синий фон, два телефона под углом. На левом «Разблокируйте интернет», пункты «Обход белых списков» и «Безлимитный трафик и устройства», кнопка «Попробовать за 1 ₽» с курсором-рукой, вокруг значки Instagram, Telegram, YouTube, Spotify. На правом профиль бота FadeVPN (4 088 пользователей).</dd>
+        <dt>Текст</dt><dd>Вопрос-боль «VPN не работает?» с красным крестом и ответ: три дня за 1 ₽. Позже добавили «обход белых списков», скорость до 10 Гбит/с, «15+», потом «30+ стран» и вариант «Happ VPN теперь доступен в Телеграме».</dd>
+        <dt>Воронка</dt><dd><ol class="flow"><li>Объявление</li><li>Бот @fadevpnbot</li><li>Кнопка «Попробовать за 1 ₽»</li><li>Пробный доступ 3 дня</li><li>Тариф</li></ol></dd>
+      </dl>
+      <p class="why"><b>Почему в списке</b>Платный пробник за 1 ₽ вместо бесплатного. Картинка показывает экран бота и кнопку до клика. В одной ссылке остался незаполненный шаблон метки: [adHash].</p>
+      <a class="src" href="https://telegramadsarchive.com/advertisers/tg-fadevpnbot" target="_blank" rel="noopener">Все тексты в архиве</a>
+    </div>
+  </article>
+
+  <article class="card">
+    <div class="shot"><div class="noshot"><span>Картинки нет</span><span class="btn">VIEW BOT</span><span>только текст и кнопка</span></div></div>
+    <div class="body">
+      <div class="chips"><span class="chip tg">Telegram Ads</span><span class="chip">@vpn_free · Alpha VPN</span><span class="chip">кабинет TON</span></div>
+      <h3>«Снова не работает VPN?» и «Внимание, новый VPN!»</h3>
+      <div class="meta-line">В эфире с апреля 2026 (до 188 дней) · 20 объявлений</div>
+      <dl class="facts">
+        <dt>Картинка</dt><dd>Нет.</dd>
+        <dt>Текст</dt><dd>Две ветки. Боль: «снова не работает VPN?», бесплатно, «всего за 2 клика». Интрига без цены и условий: «‼️ ВНИМАНИЕ, новый VPN!» и стрелки вниз к кнопке. Третья: «улучшенный VPN теперь тут, бесплатный период для новичков».</dd>
+        <dt>Воронка</dt><dd><ol class="flow"><li>Объявление</li><li>Бот, метки вида A-xxxx</li><li>«Есть бесплатный демо-период»</li><li>Демо</li><li>Оплата</li></ol></dd>
+      </dl>
+      <p class="why"><b>Почему в списке</b>Объявление без цены и без выгоды, только «внимание» и стрелки, держится почти полгода. Формат «интрига плюс кнопка» проверен временем.</p>
+      <a class="src" href="https://telegramadsarchive.com/advertisers/tg-vpn-free" target="_blank" rel="noopener">Все тексты в архиве</a>
+    </div>
+  </article>
+
+  <article class="card">
+    <div class="shot"><img src="img/tg-vanya.jpg" alt="Баннер «Дядя Ваня VPN»: карта мира с жёлтыми точками серверов, заголовок «Выбирайте, откуда выйти в интернет», красная кнопка «Подключить»" loading="lazy"></div>
+    <div class="body">
+      <div class="chips"><span class="chip tg">Telegram Ads</span><span class="chip">@vanya_vpn_bot</span><span class="chip">кабинеты TON и EUR</span></div>
+      <h3>«Выбирайте, откуда выйти в интернет»</h3>
+      <div class="meta-line">В эфире с апреля 2026 (до 186 дней) · 86 объявлений</div>
+      <dl class="facts">
+        <dt>Картинка</dt><dd>Баннер 16:9. Тёмно-синяя карта мира с жёлтыми точками серверов, крупный заголовок, строка «Ваш личный VPN в 174 странах», красная кнопка «Подключить», логотип с буквой В.</dd>
+        <dt>Текст</dt><dd>В апреле заход Alice, затем: надёжный VPN без блокировок, до 10 Гбит/с, безлимит устройств, подключение за минуту, 3 дня за 10 ₽. В сентябре: «бери за 10 рублей», «187 стран», «выбери в боте „Попробовать за 10 рублей“». Число стран плавает от 174 до 187.</dd>
+        <dt>Воронка</dt><dd><ol class="flow"><li>Объявление</li><li>Бот (в апрельских ссылках другой бот проекта, BEBRA_VPN_BOT)</li><li>Выбрать «Попробовать за 10 рублей»</li><li>3 дня пробного</li><li>Тариф</li></ol></dd>
+      </dl>
+      <p class="why"><b>Почему в списке</b>86 вариантов и платный вход за 10 ₽, как у FadeVPN за 1 ₽. Картинка передаёт идею «ваш выбор страны», а не страх.</p>
+      <a class="src" href="https://telegramadsarchive.com/advertisers/tg-vanya-vpn-bot" target="_blank" rel="noopener">Все тексты в архиве</a>
+    </div>
+  </article>
+
+  <article class="card">
+    <div class="shot"><img src="img/tg-alisa.jpg" alt="Фиолетовый баннер «Алиса VPN»: четыре плашки с условиями и персонаж в платке" loading="lazy"></div>
+    <div class="body">
+      <div class="chips"><span class="chip tg">Telegram Ads</span><span class="chip">@vpnalisabot</span><span class="chip">кабинет TON</span></div>
+      <h3>«Работает при угрозах БПЛА и при белых списках»</h3>
+      <div class="meta-line">В эфире с апреля 2026 (до 185 дней) · 83 объявления</div>
+      <dl class="facts">
+        <dt>Картинка</dt><dd>16:9, фиолетовый. Четыре белые плашки с ситуациями: угрозы БПЛА, белые списки, ночное отключение интернета, центр города, метро и навигация. Справа персонаж в платке с надписью «Алиса VPN».</dd>
+        <dt>Текст</dt><dd>Разные заходы под разные аудитории. «Халяль!» для религиозного сегмента. «Российская разработка, работает, когда глушат, 3 дня без ввода карты, установка в 1 клик». Вариант с эмодзи пожилой женщины: подробная пошаговая инструкция, работает на мобильном.</dd>
+        <dt>Воронка</dt><dd><ol class="flow"><li>Объявление</li><li>Бот, метки inv_…</li><li>Описание: сайт, канал, бот с инструкциями, поддержка</li><li>3 дня без карты</li><li>Тариф</li></ol></dd>
+      </dl>
+      <p class="why"><b>Почему в списке</b>Конкретные ситуации вместо абстрактного «быстрый VPN» и сегментация заходов по аудиториям: религия, возраст, место.</p>
+      <a class="src" href="https://telegramadsarchive.com/advertisers/tg-vpnalisabot" target="_blank" rel="noopener">Все тексты в архиве</a>
+    </div>
+  </article>
+
+  </div>
+</section>
+
+<!-- ============ ЯНДЕКС И ВК ============ -->
+<section class="section" id="yandex-vk">
+  <div class="section-head">
+    <h2>Яндекс Директ и ВК: показать нечего</h2>
+    <p>Десять креативов из этих площадок я не набрал. Выдумывать их не стал, вот что именно проверено.</p>
+  </div>
+  <div class="empty">
+    <ul>
+      <li><b>Яндекс Директ.</b> В справке по запрещённым категориям VPN-сервисы названы прямо, вместе с обходом блокировок. Открытой базы объявлений у Директа нет, а спай-сервиса с VPN по Директу я не нашёл.</li>
+      <li><b>ВКонтакте.</b> Библиотеки чужой рекламы у VK Рекламы нет. Раздел «Библиотека» в кабинете это фотосток и нейроизображения для своих объявлений. Единственный найденный документ по VPN в ВК относится к 2018 году.</li>
+      <li><b>Что осталось.</b> Только ручной способ: смотреть ленту и рекламные места с тестового аккаунта. Выборка получится случайной, без сроков и без счёта вариантов.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============ ЗАРУБЕЖНЫЕ ============ -->
+<section class="section" id="abroad">
+  <div class="section-head">
+    <h2>Зарубежные: 10 креативов из Meta</h2>
+    <p>Источник: Meta Ad Library, активные объявления в США (поиск по названиям брендов и слову vpn). Крупные бренды меняют креативы каждые несколько недель, поэтому по сроку почти не отсортировать. Отбирал по масштабу рекламодателя, числу копий и разнообразию заходов. Google Ads и TikTok не смотрел.</p>
+  </div>
+
+  <ul class="patterns">
+    <li><b>Угрозы блокировок в зарубежных креативах нет.</b> Заходы: приватность с юмором, мошенничество, защита покупок в Чёрную пятницу, поездки (стриминг, перелёты, отели).</li>
+    <li><b>Видео у шести из десяти.</b> Вертикальные ролики от 10 до 60 секунд: говорящая голова, креатор, селебрити. Статика у четырёх.</li>
+    <li><b>VPN продаётся пакетом.</b> NordVPN говорит об антивирусе нового поколения, Surfshark о связке с антивирусом и оповещениями, ExpressVPN добавляет eSIM и менеджер паролей.</li>
+    <li><b>Короткий путь клика.</b> Прямо на тарифы (Express), в корзину с купоном (PC Matic), на страницу креатора с кодом (Surfshark), через редирект-трекер (Proton).</li>
+    <li><b>Гарантия возврата 30 дней</b> у всех, чьи страницы удалось открыть.</li>
+    <li><b>Сезонный оффер уже идёт.</b> Чёрная пятница: «до 77% + 3 месяца» у Nord, «до 80%» у Express.</li>
+  </ul>
+
+  <div class="stack">
+
+  <article class="card">
+    <div class="shot"><img src="img/f1-express-hackers.jpg" alt="Первый кадр видео: мужчина в рубашке с цветочным принтом говорит в камеру на светлом фоне" loading="lazy"></div>
+    <div class="body">
+      <div class="chips"><span class="chip fb">Meta</span><span class="chip">ExpressVPN</span><span class="chip">видео 51 с</span></div>
+      <h3>Хакеры нас ненавидят, и нам нормально</h3>
+      <div class="meta-line">Показ начат 16–19.08.2026 · три копии в выдаче · видеофайл создан около полугода назад (по метаданным ссылки)</div>
+      <dl class="facts">
+        <dt>Картинка</dt><dd>Вертикальное видео. Обычный человек в цветастой рубашке на светлой стене говорит в камеру, без графики и логотипа в первом кадре.</dd>
+        <dt>Текст</dt><dd>Шутка вместо угрозы: хакеры, рекламодатели и ваш провайдер нас ненавидят, нас это устраивает. Затем одна строка пользы: данные, история просмотров и локация защищены. Призыв «верните контроль над цифровым следом 👇».</dd>
+        <dt>Воронка</dt><dd><ol class="flow"><li>Объявление, UTM Facebook с макросами кампании</li><li>expressvpn.com/start/privacy/data-theft</li><li>Скидка до 80% (сезонная), гарантия 30 дней</li><li>Бонус: eSIM до 3 ГБ, менеджер паролей</li><li>Все кнопки на тарифы</li></ol></dd>
+      </dl>
+      <p class="why"><b>Почему в списке</b>Крупный рекламодатель и UGC-стиль без постановки. Страница держит доверие: 412 тыс. оценок, награды, живой чат 24/7.</p>
+      <a class="src" href="https://www.facebook.com/ads/library/?id=1365522068503612" target="_blank" rel="noopener">Открыть в Meta Ad Library</a>
+    </div>
+  </article>
+
+  <article class="card">
+    <div class="shot"><img src="img/f2-express-family.jpg" alt="Первый кадр видео: мужчина в светлом свитшоте держит телефон, субтитр «my family needs»" loading="lazy"></div>
+    <div class="body">
+      <div class="chips"><span class="chip fb">Meta</span><span class="chip">ExpressVPN</span><span class="chip">видео 19 с</span></div>
+      <h3>Сколько VPN-подписок нужно семье? Одна</h3>
+      <div class="meta-line">Показ начат 19.08.2026 · видеофайл создан около четырёх месяцев назад</div>
+      <dl class="facts">
+        <dt>Картинка</dt><dd>Вертикальное видео. Мужчина с телефоном в светлой гостиной, крупные субтитры поверх кадра.</dd>
+        <dt>Текст</dt><dd>Вопрос о числе подписок и ответ: один план закрывает телефоны, ноутбуки, телевизоры и планшеты, не нужно жонглировать десятком логинов. Цена подана как «чашка кофе в месяц».</dd>
+        <dt>Воронка</dt><dd><ol class="flow"><li>Объявление, utm_source=meta</li><li>Та же страница data-theft</li><li>Тарифы</li></ol></dd>
+      </dl>
+      <p class="why"><b>Почему в списке</b>Тот же оффер и та же страница, другой заход: выгода вместо юмора. Видно, как Express гоняет два захода на одну воронку.</p>
+      <a class="src" href="https://www.facebook.com/ads/library/?id=1071341612141918" target="_blank" rel="noopener">Открыть в Meta Ad Library</a>
+    </div>
+  </article>
+
+  <article class="card">
+    <div class="shot"><img src="img/f3-pcmatic.jpg" alt="Квадратное видео: пожилой мужчина в очках, заголовок «Retirees, are you browsing the web without a VPN?»" loading="lazy"></div>
+    <div class="body">
+      <div class="chips"><span class="chip fb">Meta</span><span class="chip">PC Matic</span><span class="chip">видео 50 с</span></div>
+      <h3>«Пенсионеры, вы сидите в сети без VPN?»</h3>
+      <div class="meta-line">Показ начат 19.02.2026 · идёт больше восьми месяцев</div>
+      <dl class="facts">
+        <dt>Картинка</dt><dd>Квадрат 1:1. Пожилой мужчина в очках в деревянном интерьере, поверх кадра заголовок о пенсионерах без VPN (зелёная плашка на «без VPN?»).</dd>
+        <dt>Текст</dt><dd>Данные остаются приватными где бы вы ни были. «Получите сегодня всего за $30» (≈2 490 ₽). В карточке: скидка 63%, «сделано в США».</dd>
+        <dt>Воронка</dt><dd><ol class="flow"><li>Объявление</li><li>pcmatic.com/special/vpn30fyr</li><li>1 год $30 (≈2 490 ₽), обычно $50 (≈4 150 ₽), купон VPN30FYR</li><li>Или 2 года $72 (≈5 970 ₽)</li><li>«Buy Now» сразу в корзину</li></ol></dd>
+      </dl>
+      <p class="why"><b>Почему в списке</b>Единственный из десяти с подтверждённым сроком больше восьми месяцев. Аудитория названа в первом кадре, цена-якорь рядом. На странице награды AV-TEST, рейтинг BBB A+, сравнительная таблица, отзывы «Verified Purchase», гарантия 30 дней. Допродажи внутри нет.</p>
+      <a class="src" href="https://www.facebook.com/ads/library/?id=2113155389440952" target="_blank" rel="noopener">Открыть в Meta Ad Library</a>
+    </div>
+  </article>
+
+  <article class="card">
+    <div class="shot"><img src="img/f4-proton-static.jpg" alt="Квадратный баннер Proton VPN: руки с телефоном, надпись «All private. All Proton.»" loading="lazy"></div>
+    <div class="body">
+      <div class="chips"><span class="chip fb">Meta</span><span class="chip">Proton VPN</span><span class="chip">статика 1:1</span></div>
+      <h3>«Всё приватно. Всё Proton»</h3>
+      <div class="meta-line">Показ начат 27.08.2026 · один креатив в 10 объявлениях, ещё один в 4</div>
+      <dl class="facts">
+        <dt>Картинка</dt><dd>Квадрат. Женщина держит iPhone с приложением, на экране «Protected» и карта США. Сверху логотип, внизу крупный слоган.</dd>
+        <dt>Текст</dt><dd>«Приватность для реального мира»: проверен в экстремальных условиях, подходит для сёрфинга, стриминга и поездок, рейтинг 4,5+ в сторах, миллионы пользователей. Вторая версия: «ваши данные принадлежат вам», активность скрыта даже от самого Proton.</dd>
+        <dt>Воронка</dt><dd><ol class="flow"><li>Объявление</li><li>get.proton.me/fb_rdrct, campaign_id=3209</li><li>В ссылке ID адсета, объявления и плейсмента</li><li>Дальше не открывал</li></ol></dd>
+      </dl>
+      <p class="why"><b>Почему в списке</b>Масштаб за счёт аудиторий: один статик в десяти объявлениях. Доверие строится на рейтинге и числе пользователей, а не на скидке.</p>
+      <a class="src" href="https://www.facebook.com/ads/library/?id=1040948555503306" target="_blank" rel="noopener">Открыть в Meta Ad Library</a>
+    </div>
+  </article>
+
+  <article class="card">
+    <div class="shot"><img src="img/f5-proton-creator.jpg" alt="Первый кадр видео: женщина в самолёте держит младенца и смотрит в телефон" loading="lazy"></div>
+    <div class="body">
+      <div class="chips"><span class="chip fb">Meta</span><span class="chip">Proton VPN</span><span class="chip">креатор · видео</span></div>
+      <h3>«Контент недоступен в этой стране»</h3>
+      <div class="meta-line">Показ начат 27.08.2026 · публикация страницы The United States of An African, спонсор Proton</div>
+      <dl class="facts">
+        <dt>Картинка</dt><dd>Вертикальное видео. Женщина в самолёте держит младенца на плече и смотрит в телефон.</dd>
+        <dt>Текст</dt><dd>От первого лица: хочу отдыхать у пляжа и смотреть любимые сериалы, а на месте приложение пишет, что контент в этой стране недоступен. Лайфхак для стриминга за границей: проверенный travel-VPN. Proton VPN с высоким рейтингом, на Android и iOS.</dd>
+        <dt>Воронка</dt><dd><ol class="flow"><li>Объявление</li><li>Тот же редирект Proton, campaign_id=3212</li></ol></dd>
+      </dl>
+      <p class="why"><b>Почему в списке</b>Боль из жизни вместо слова «приватность». У креаторов отдельный номер кампании (3212), у статика 3209: Proton считает их отдельно.</p>
+      <a class="src" href="https://www.facebook.com/ads/library/?id=2287568662017110" target="_blank" rel="noopener">Открыть в Meta Ad Library</a>
+    </div>
+  </article>
+
+  <article class="card">
+    <div class="shot"><img src="img/f6-surfshark-meme.jpg" alt="Мем из четырёх кадров: силуэт «Я никого не боюсь», затем подпись «Bank impersonator»" loading="lazy"></div>
+    <div class="body">
+      <div class="chips"><span class="chip fb">Meta</span><span class="chip">Surfshark</span><span class="chip">статика 4:5</span></div>
+      <h3>Мем про звонок «из банка»</h3>
+      <div class="meta-line">Показ начат 01.10.2026 · серия не меньше шести креативов о мошенничестве</div>
+      <dl class="facts">
+        <dt>Картинка</dt><dd>Мем из четырёх кадров: тёмный силуэт «Я никого не боюсь», затем «но вот это…» и подпись «Bank impersonator», «это меня пугает».</dd>
+        <dt>Текст</dt><dd>История Минди из Дарема: ей позвонили «из банка», номер совпал, она потеряла $5 900 (≈489 тыс. ₽). Ссылка на FTC: почти $1 млрд потерь от «бизнес-самозванцев» в 2025 году. Слова «VPN» в начале нет.</dd>
+        <dt>Воронка</dt><dd><ol class="flow"><li>Объявление</li><li>Ссылку выгрузить не удалось</li></ol></dd>
+      </dl>
+      <p class="why"><b>Почему в списке</b>Соседние креативы серии: шутка про штраф за парковку с вопросом «какое самое странное мошенническое SMS вы получали?» (приманка для комментариев) и цифра: $1,8 млн в день (≈149 млн ₽) уходит на мошеннические SMS.</p>
+      <a class="src" href="https://www.facebook.com/ads/library/?id=1076469812039139" target="_blank" rel="noopener">Открыть в Meta Ad Library</a>
+    </div>
+  </article>
+
+  <article class="card">
+    <div class="shot"><img src="img/f7-surfshark-juan.jpg" alt="Первый кадр видео: мужчина в кепке снимает селфи, за ним башни Петронас в Куала-Лумпуре" loading="lazy"></div>
+    <div class="body">
+      <div class="chips"><span class="chip fb">Meta</span><span class="chip">Surfshark</span><span class="chip">креатор · видео 1:02</span></div>
+      <h3>Лайфхак для перелётов и код JUANVPN</h3>
+      <div class="meta-line">Показ начат 23.10.2026 · страница Planeta Juan, спонсор Surfshark · на испанском</div>
+      <dl class="facts">
+        <dt>Картинка</dt><dd>Вертикальное видео. Мужчина в кепке снимает селфи на крыше, за ним башни Петронас в Куала-Лумпуре.</dd>
+        <dt>Текст</dt><dd>«Мой трюк, чтобы полёты казались короче ✈️». Промокод JUANVPN даёт 4 дополнительных месяца на surfshark.com/juanvpn. Просьба попробовать и рассказать, как получилось.</dd>
+        <dt>Воронка</dt><dd><ol class="flow"><li>Объявление</li><li>surfshark.com/juanvpn</li><li>«Подарок от @planetajuan», баннер Чёрной пятницы</li><li>Гарантия 30 дней, пакет Surfshark One</li><li>«Get Surfshark» на тарифы с кодом juanvpn</li></ol></dd>
+      </dl>
+      <p class="why"><b>Почему в списке</b>Ссылка на имя креатора и промокод в тексте: простая атрибуция. На странице видны 40 млн загрузок, Trustpilot 4,3, App Store 4,7, Google Play 4,6. Страница на английском, а ролик на испанском. Обещанных 4 месяцев в прочитанном тексте страницы я не увидел.</p>
+      <a class="src" href="https://www.facebook.com/ads/library/?id=1057759923945550" target="_blank" rel="noopener">Открыть в Meta Ad Library</a>
+    </div>
+  </article>
+
+  <article class="card">
+    <div class="shot"><img src="img/f8-nord-shaq.jpg" alt="Кадр видео: Шакил О'Нил в тёмных очках, субтитр «Big on breaking malicious links»" loading="lazy"></div>
+    <div class="body">
+      <div class="chips"><span class="chip fb">Meta</span><span class="chip">NordVPN</span><span class="chip">селебрити · видео 10 с</span></div>
+      <h3>NordVPN и Шакил О'Нил</h3>
+      <div class="meta-line">Показ начат 21.10.2026 · кампания с 08.10, около десяти вариантов, плюс пост блогера Harry Mack</div>
+      <dl class="facts">
+        <dt>Картинка</dt><dd>Вертикальный кадр. Шакил в тёмных очках, голубая плашка с субтитром о том, что он «крупный» в разрыве вредоносных ссылок.</dd>
+        <dt>Текст</dt><dd>«Вот что бывает, когда угрозы подбираются слишком близко. Усильте онлайн-защиту с @shaq и NordVPN». В других вариантах рефрен «Go big» и разговор об антивирусе нового поколения.</dd>
+        <dt>Воронка</dt><dd><ol class="flow"><li>Объявление</li><li>nordvpn.com/offer/social (страницу не открыл, сайт ответил 403)</li><li>В соседнем креативе: до 77% и 3 месяца в подарок</li></ol></dd>
+      </dl>
+      <p class="why"><b>Почему в списке</b>Единственный с селебрити. Слово VPN отодвинуто: продукт описан как защита и антивирус. Кампания построена вокруг события на Таймс-сквер.</p>
+      <a class="src" href="https://www.facebook.com/ads/library/?id=1966535614675839" target="_blank" rel="noopener">Открыть в Meta Ad Library</a>
+    </div>
+  </article>
+
+  <article class="card">
+    <div class="shot"><img src="img/f9-nord-bf.jpg" alt="Чёрный баннер NordVPN с неоновой надписью «77%» и текстом о Чёрной пятнице" loading="lazy"></div>
+    <div class="body">
+      <div class="chips"><span class="chip fb">Meta</span><span class="chip">NordVPN</span><span class="chip">статика 4:5</span></div>
+      <h3>Чёрная пятница: «до 77% + 3 месяца»</h3>
+      <div class="meta-line">Показ начат 21.10.2026 · несколько копий</div>
+      <dl class="facts">
+        <dt>Картинка</dt><dd>Чёрный фон, огромная неоновая «77%», сверху логотип, внизу «не пропустите наше предложение к Чёрной пятнице: до 77% скидки + 3 месяца в подарок».</dd>
+        <dt>Текст</dt><dd>Чёрная пятница любимое время мошенников: спешка мешает заметить поддельный сайт. Антивирус нового поколения блокирует вредоносные файлы и подозрительные сайты. Дальше оффер.</dd>
+        <dt>Воронка</dt><dd><ol class="flow"><li>Объявление, «Learn More»</li><li>nordvpn.com/offer/social</li></ol></dd>
+      </dl>
+      <p class="why"><b>Почему в списке</b>Скидка как единственный визуальный элемент. Страх мошенников привязан к сезону покупок.</p>
+      <a class="src" href="https://www.facebook.com/ads/library/?id=3038153036551335" target="_blank" rel="noopener">Открыть в Meta Ad Library</a>
+    </div>
+  </article>
+
+  <article class="card">
+    <div class="shot"><img src="img/f10-nord-mice.jpg" alt="Баннер PriceMice: зелёная мышка шепчет мужчине на пляже, заголовок «Psst, don't overpay for your stay»" loading="lazy"></div>
+    <div class="body">
+      <div class="chips"><span class="chip fb">Meta</span><span class="chip">NordVPN × PriceMice</span><span class="chip">статика 4:5</span></div>
+      <h3>«Не переплачивайте за жильё»</h3>
+      <div class="meta-line">Показ начат 22.10.2026</div>
+      <dl class="facts">
+        <dt>Картинка</dt><dd>Салатовый логотип PriceMice, заголовок «Psst, не переплачивайте за жильё», зелёная мышка-талисман шепчет мужчине в красных очках и красном платке на пляже. Внизу «от создателей NordVPN».</dd>
+        <dt>Текст</dt><dd>«Секрет, который не хотят знать сайты бронирования»: тот же номер на те же даты в другой стране стоит дешевле. PriceMice находит цену, NordVPN помогает её получить. Призыв: скачать расширение.</dd>
+        <dt>Воронка</dt><dd><ol class="flow"><li>Объявление</li><li>Страница расширения PriceMice в Chrome Web Store</li><li>Как оно подводит к покупке NordVPN, не смотрел</li></ol></dd>
+      </dl>
+      <p class="why"><b>Почему в списке</b>VPN продан через бытовую выгоду (дешевле отель) и отдельный бренд-приманку. Ссылка ведёт не на сайт VPN.</p>
+      <a class="src" href="https://www.facebook.com/ads/library/?id=1280992470840309" target="_blank" rel="noopener">Открыть в Meta Ad Library</a>
+    </div>
+  </article>
+
+  </div>
+
+  <div class="note">
+    <strong>Что не взял</strong>
+    <span>В Meta давно идут «бесплатные VPN» под установку из Google Play (Falcon Proxy VPN, VPN Sea Proxy, Super VPN). В роликах, которые я открыл, показано другое: приложение с розыгрышами, музыкальный плеер, откровенный кадр на превью. Содержание не совпадает с продуктом, поэтому в десятку они не вошли.</span>
+  </div>
+</section>
+
+<footer class="sources">
+  <strong>Источники</strong>
+  <ul>
+    <li><a href="https://telegramadsarchive.com/niches/vpn" target="_blank" rel="noopener">Telegram Ads Archive, ниша VPN</a> и его <a href="https://tgadsspy.com/api/v1/ads?niche=vpn" target="_blank" rel="noopener">открытый API</a> (лицензия CC-BY-4.0)</li>
+    <li><a href="https://www.facebook.com/ads/library/" target="_blank" rel="noopener">Meta Ad Library</a>, США, активные объявления на 28.10.2026</li>
+    <li><a href="https://yandex.ru/support/direct/ru/moderation/restricted-categories" target="_blank" rel="noopener">Справка Яндекс Директа: запрещённые категории</a></li>
+    <li><a href="https://blog.click.ru/market-news/v-vk-reklame-poyavilis-izobrazheniya-iz-fotostoka/" target="_blank" rel="noopener">click.ru о библиотеке VK Рекламы</a></li>
+    <li><a href="https://ppc.world/articles/o-eti-160-simvolov-telegram-ads-osobennosti-moderacii-principy-sostavleniya-kreativov-primery/" target="_blank" rel="noopener">ppc.world о лимите 160 знаков в Telegram Ads</a></li>
+    <li><a href="https://ppt.ru/currencies/21-10-2026" target="_blank" rel="noopener">Курс ЦБ на 21.10.2026</a></li>
+  </ul>
+</footer>
+
+</div>
